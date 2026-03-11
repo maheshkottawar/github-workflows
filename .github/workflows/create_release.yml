@@ -1,55 +1,65 @@
-name: release
+name: Create a release
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 permissions:
   contents: write
-  pull-requests: read
+
 jobs:
-  release:
+  create_release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Get bump version
-        id: bump_label
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: SamirMarin/get-labels-action@v0
+        uses: actions/checkout@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          label_key: bump
-          label_value_order: "patch,minor,major,ignore"
-          default_label_value: patch
+          ref: ${{ github.sha }}
+          submodules: recursive
+          fetch-depth: 0
 
-      - name: Set default bump for push events
-        id: bump_value
+      - name: Generate next tag
+        id: gen-tag
+        uses: paulhatch/semantic-version@v5.4.0
+        with:
+          tag-prefix: "v"
+          version_format: ${major}.${minor}.${patch}
+
+      - name: Display generated tag
         run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            echo "bump_version=${{ steps.bump_label.outputs.label_value }}" >> $GITHUB_OUTPUT
-          else
-            echo "bump_version=patch" >> $GITHUB_OUTPUT
+          echo "Generated tag: ${{ steps.gen-tag.outputs.version_tag }}"
+
+      - name: setup git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create new tag for current HEAD
+        env:
+          NEXT_TAG: ${{ steps.gen-tag.outputs.version_tag }}
+        run: |
+          git tag $NEXT_TAG
+          git push origin $NEXT_TAG
+
+      - name: Create GitHub release and release tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PREVIOUS_TAG: ${{ steps.gen-tag.outputs.previous_version }}
+          RELEASE_TAG: ${{ steps.gen-tag.outputs.version_tag }}
+        run: |
+          if [[ -n ${PREVIOUS_TAG} ]]; then
+            NOTES_START_FLAG = " --notes-start-tag ${PREVIOUS_TAG}"
           fi
 
-      - name: create tag to release
-        id: tag_version
-        uses: mathieudutour/github-tag-action@v6.1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          default_bump: ${{ steps.bump_value.outputs.bump_version }}
-          dry_run: ${{ github.event_name == 'pull_request' }}
-          tag_prefix: v
+          url=${gh release creater $RELEASE_TAG --target main --generate-notes$NOTES_START_FLAG}
+          echo " Successfully release of **$RELEASE_TAG**! view it [here]($url)." >> $GITHUB_STEP_SUMMARY
 
-      - name: create release
-        uses: ncipollo/release-action@v1
-        if: ${{ github.event_name != 'pull_request' }}
-        with:
-          tag: ${{ steps.tag_version.outputs.new_tag }}
-          name: Release ${{ steps.tag_version.outputs.new_tag }}
-          body: ${{ steps.tag_version.outputs.changelog }}
+      - name: Move major floating tag
+        env:
+          MAJOR_TAG: v${{ steps.gen-tag.outputs.major }}
+          RELEASE_TAG: ${{ steps.gen-tag.outputs.version_tag }}
+        run: |
+          git tag -f $MAJOR_TAG
+          git push origin $MAJOR_TAG
+          echo "Major tag **$MAJOR_TAG** now points to release tag **$RELEASE_TAG**." >> $GITHUB_STEP_SUMMARY
