@@ -4,6 +4,18 @@ const app = express();
 // Middleware
 app.use(express.json());
 
+// Logging middleware
+app.use((req, res, next) => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${req.method} ${req.path}`);
+
+  res.on('finish', () => {
+    console.log(`[${timestamp}] ${req.method} ${req.path} - Status: ${res.statusCode}`);
+  });
+
+  next();
+});
+
 // In-memory data store (for demo purposes)
 let users = [
   { id: 1, name: 'Alice', email: 'alice@example.com' },
@@ -32,6 +44,7 @@ app.post('/api/users', (req, res) => {
   const { name, email } = req.body;
 
   if (!name || !email) {
+    console.warn(`[${new Date().toISOString()}] Validation failed - Missing required fields: name=${name}, email=${email}`);
     return res.status(400).json({
       success: false,
       message: 'Name and email are required'
@@ -45,6 +58,7 @@ app.post('/api/users', (req, res) => {
   };
 
   users.push(newUser);
+  console.log(`[${new Date().toISOString()}] User created successfully - ID: ${newUser.id}, Name: ${newUser.name}`);
 
   res.status(201).json({
     success: true,
@@ -58,12 +72,14 @@ app.get('/api/users/:id', (req, res) => {
   const user = users.find(u => u.id === parseInt(req.params.id));
 
   if (!user) {
+    console.warn(`[${new Date().toISOString()}] User not found - ID: ${req.params.id}`);
     return res.status(404).json({
       success: false,
       message: 'User not found'
     });
   }
 
+  console.log(`[${new Date().toISOString()}] User retrieved - ID: ${user.id}, Name: ${user.name}`);
   res.json({
     success: true,
     data: user
@@ -75,6 +91,7 @@ app.delete('/api/users/:id', (req, res) => {
   const userIndex = users.findIndex(u => u.id === parseInt(req.params.id));
 
   if (userIndex === -1) {
+    console.warn(`[${new Date().toISOString()}] Delete failed - User not found - ID: ${req.params.id}`);
     return res.status(404).json({
       success: false,
       message: 'User not found'
@@ -82,6 +99,7 @@ app.delete('/api/users/:id', (req, res) => {
   }
 
   const deletedUser = users.splice(userIndex, 1);
+  console.log(`[${new Date().toISOString()}] User deleted successfully - ID: ${deletedUser[0].id}, Name: ${deletedUser[0].name}`);
 
   res.json({
     success: true,
@@ -100,6 +118,7 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
+  console.error(`[${new Date().toISOString()}] Error: ${err.message}`);
   console.error(err.stack);
   res.status(500).json({
     success: false,
