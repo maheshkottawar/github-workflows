@@ -29,6 +29,10 @@ jobs:
       - name: Display generated tag
         run: |
           echo "Generated tag: ${{ steps.gen-tag.outputs.version_tag }}"
+          echo "Previous version: ${{ steps.gen-tag.outputs.previous_version }}"
+          echo "Major: ${{ steps.gen-tag.outputs.major }}"
+          echo "Minor: ${{ steps.gen-tag.outputs.minor }}"
+          echo "Patch: ${{ steps.gen-tag.outputs.patch }}"
 
       - name: setup git user
         run: |
@@ -48,13 +52,31 @@ jobs:
           PREVIOUS_TAG: ${{ steps.gen-tag.outputs.previous_version }}
           RELEASE_TAG: ${{ steps.gen-tag.outputs.version_tag }}
         run: |
-          echo "Creating release **$RELEASE_TAG** with notes since **$PREVIOUS_TAG**..." >> $GITHUB_STEP_SUMMARY
+          echo "Creating release **$RELEASE_TAG**..." >> $GITHUB_STEP_SUMMARY
+
           NOTES_START_FLAG=""
+
+          # Check if PREVIOUS_TAG is not empty and is a valid tag
           if [[ -n "$PREVIOUS_TAG" ]]; then
-            NOTES_START_FLAG="--notes-start-tag $PREVIOUS_TAG"
+            echo "Previous tag value: $PREVIOUS_TAG"
+            # Verify tag exists locally or on remote
+            if git rev-parse "$PREVIOUS_TAG" >/dev/null 2>&1; then
+              echo "Previous tag validated: $PREVIOUS_TAG"
+              NOTES_START_FLAG="--notes-start-tag $PREVIOUS_TAG"
+            else
+              echo "Warning: Previous tag '$PREVIOUS_TAG' not found, generating notes without reference"
+            fi
+          else
+            echo "No previous tag found, generating notes from repository history"
           fi
 
-          url=$(gh release create $RELEASE_TAG --target main --generate-notes $NOTES_START_FLAG)
+          # Create release with or without previous tag reference
+          if [[ -n "$NOTES_START_FLAG" ]]; then
+            url=$(gh release create $RELEASE_TAG --target main --generate-notes $NOTES_START_FLAG)
+          else
+            url=$(gh release create $RELEASE_TAG --target main --generate-notes)
+          fi
+
           echo "Successfully released **$RELEASE_TAG**! View it [here]($url)." >> $GITHUB_STEP_SUMMARY
 
       - name: Move major floating tag
