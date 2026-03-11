@@ -58,7 +58,7 @@ jobs:
 
       - name: Move major floating tag
         env:
-          MAJOR_TAG: ${{ format('v{0}', steps.gen-tag.outputs.major_version) }}
+          MAJOR_TAG: ${{ format('v{0}', steps.gen-tag.outputs.major) }}
           RELEASE_TAG: ${{ steps.gen-tag.outputs.version_tag }}
         run: |
           git tag -f $MAJOR_TAG
