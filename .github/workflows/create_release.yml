@@ -58,9 +58,9 @@ jobs:
 
       - name: Move major floating tag
         env:
-          MAJOR_TAG: v${{ steps.gen-tag.outputs.major }}
+          MAJOR_TAG: ${{ format('v{0}', steps.gen-tag.outputs.major_version) }}
           RELEASE_TAG: ${{ steps.gen-tag.outputs.version_tag }}
         run: |
           git tag -f $MAJOR_TAG
-          git push origin $MAJOR_TAG
+          git push -f origin $MAJOR_TAG
           echo "Major tag **$MAJOR_TAG** now points to release tag **$RELEASE_TAG**." >> $GITHUB_STEP_SUMMARY
