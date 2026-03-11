@@ -1,7 +1,7 @@
 {
   "name": "simple-nodejs-api",
-  "version": "1.0.0",
-  "description": "A simple Node.js API with multiple endpoints",
+  "version": "4.0.0",
+  "description": "A simple Node.js API with multiple endpoints (v4)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -10,7 +10,8 @@
   "keywords": [
     "nodejs",
     "api",
-    "express"
+    "express",
+    "v4"
   ],
   "author": "",
   "license": "ISC",

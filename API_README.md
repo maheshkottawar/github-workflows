@@ -1,36 +1,42 @@
-# Node.js API Application
+# Node.js API Application (v4)
 
 A simple Node.js REST API with Express.js that exposes multiple endpoints.
 
 ## Features
 
 - **Health Check Endpoint** - Monitor application status
-- **User Management** - Get users, create new users, get user by ID
+- **User Management** - Get users, create new users, get user by ID, delete users
 - **Error Handling** - Proper HTTP status codes and error messages
 - **Docker Support** - Includes Dockerfile for containerization
+- **Comprehensive Logging** - Request/response logging with timestamps
 
-## Endpoints
+## Endpoints (API v4)
 
 1. **GET /health** - Health check endpoint
    ```bash
    curl http://localhost:3000/health
    ```
 
-2. **GET /api/users** - Get all users
+2. **GET /api/v4/users** - Get all users
    ```bash
-   curl http://localhost:3000/api/users
+   curl http://localhost:3000/api/v4/users
    ```
 
-3. **POST /api/users** - Create a new user
+3. **POST /api/v4/users** - Create a new user
    ```bash
-   curl -X POST http://localhost:3000/api/users \
+   curl -X POST http://localhost:3000/api/v4/users \
      -H "Content-Type: application/json" \
      -d '{"name": "John", "email": "john@example.com"}'
    ```
 
-4. **GET /api/users/:id** - Get user by ID
+4. **GET /api/v4/users/:id** - Get user by ID
    ```bash
-   curl http://localhost:3000/api/users/1
+   curl http://localhost:3000/api/v4/users/1
+   ```
+
+5. **DELETE /api/v4/users/:id** - Delete user by ID
+   ```bash
+   curl -X DELETE http://localhost:3000/api/v4/users/1
    ```
 
 ## Installation & Running Locally
