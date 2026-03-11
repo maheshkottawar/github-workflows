@@ -49,27 +49,15 @@ jobs:
       - name: Create GitHub release and release tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PREVIOUS_TAG: ${{ steps.gen-tag.outputs.previous_version }}
+          PREVIOUS_TAG: "v${{ steps.gen-tag.outputs.previous_version }}"
           RELEASE_TAG: ${{ steps.gen-tag.outputs.version_tag }}
         run: |
-          echo "Creating release **$RELEASE_TAG**..." >> $GITHUB_STEP_SUMMARY
-
-          # Create release with proper note generation
           if [[ -n "$PREVIOUS_TAG" ]]; then
-            # Validate previous tag exists
-            if git rev-parse "v${PREVIOUS_TAG}" >/dev/null 2>&1; then
-              echo "Generating notes since v${PREVIOUS_TAG}..."
-              gh release create "$RELEASE_TAG" --target main --generate-notes --notes-start-tag "v${PREVIOUS_TAG}"
-            else
-              echo "Previous tag v${PREVIOUS_TAG} not found, generating notes from all commits..."
-              gh release create "$RELEASE_TAG" --target main --generate-notes
-            fi
-          else
-            echo "No previous tag found, generating notes from all commits..."
-            gh release create "$RELEASE_TAG" --target main --generate-notes
+            NOTES_START_FLAG="--notes-start-tag $PREVIOUS_TAG"
           fi
 
-          echo "Successfully created release **$RELEASE_TAG**!" >> $GITHUB_STEP_SUMMARY
+          url=$(gh release create **$RELEASE_TAG** --target main --generate-notes $NOTES_START_FLAG )
+          echo "Successfull release of **$RELEASE_TAG**! View it [here]$url." >> $GITHUB_STEP_SUMMARY
 
       - name: Move major floating tag
         env:
