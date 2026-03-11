@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 permissions:
   contents: write
@@ -32,3 +29,37 @@ jobs:
       - name: Display generated tag
         run: |
           echo "Generated tag: ${{ steps.gen-tag.outputs.version_tag }}"
+
+      - name: setup git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create new tag for current HEAD
+        env:
+          NEXT_TAG: ${{ steps.gen-tag.outputs.version_tag }}
+        run: |
+          git tag $NEXT_TAG
+          git push origin $NEXT_TAG
+
+      - name: Create GitHub release and release tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PREVIOUS_TAG: ${{ steps.gen-tag.outputs.previous_version }}
+          RELEASE_TAG: ${{ steps.gen-tag.outputs.version_tag }}
+        run: |
+          if [[ -n ${PREVIOUS_TAG} ]]; then
+            NOTES_START_FLAG = " --notes-start-tag ${PREVIOUS_TAG}"
+          fi
+
+          url=${gh release creater $RELEASE_TAG --target main --generate-notes$NOTES_START_FLAG}
+          echo " Successfully release of **$RELEASE_TAG**! view it [here]($url)." >> $GITHUB_STEP_SUMMARY
+
+      - name: Move major floating tag
+        env:
+          MAJOR_TAG: v${{ steps.gen-tag.outputs.major }}
+          RELEASE_TAG: ${{ steps.gen-tag.outputs.version_tag }}
+        run: |
+          git tag -f $MAJOR_TAG
+          git push origin $MAJOR_TAG
+          echo "Major tag **$MAJOR_TAG** now points to release tag **$RELEASE_TAG**." >> $GITHUB_STEP_SUMMARY
