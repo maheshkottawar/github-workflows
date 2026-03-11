@@ -1,9 +1,12 @@
 name: Create a release
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: "Release type (auto/patch/minor/major)"
+        required: false
+        default: "auto"
 
 permissions:
   contents: write
