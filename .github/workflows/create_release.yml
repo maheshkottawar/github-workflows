@@ -59,17 +59,17 @@ jobs:
             # Validate previous tag exists
             if git rev-parse "v${PREVIOUS_TAG}" >/dev/null 2>&1; then
               echo "Generating notes since v${PREVIOUS_TAG}..."
-              url=$(gh release create "$RELEASE_TAG" --target main --generate-notes --notes-start-tag "v${PREVIOUS_TAG}")
+              gh release create "$RELEASE_TAG" --target main --generate-notes --notes-start-tag "v${PREVIOUS_TAG}"
             else
               echo "Previous tag v${PREVIOUS_TAG} not found, generating notes from all commits..."
-              url=$(gh release create "$RELEASE_TAG" --target main --generate-notes)
+              gh release create "$RELEASE_TAG" --target main --generate-notes
             fi
           else
             echo "No previous tag found, generating notes from all commits..."
-            url=$(gh release create "$RELEASE_TAG" --target main --generate-notes)
+            gh release create "$RELEASE_TAG" --target main --generate-notes
           fi
 
-          echo "Successfully released **$RELEASE_TAG**! View it [here]($url)." >> $GITHUB_STEP_SUMMARY
+          echo "Successfully created release **$RELEASE_TAG**!" >> $GITHUB_STEP_SUMMARY
 
       - name: Move major floating tag
         env:
