@@ -70,6 +70,26 @@ app.get('/api/users/:id', (req, res) => {
   });
 });
 
+// Endpoint 5: Delete user by ID
+app.delete('/api/users/:id', (req, res) => {
+  const userIndex = users.findIndex(u => u.id === parseInt(req.params.id));
+
+  if (userIndex === -1) {
+    return res.status(404).json({
+      success: false,
+      message: 'User not found'
+    });
+  }
+
+  const deletedUser = users.splice(userIndex, 1);
+
+  res.json({
+    success: true,
+    message: 'User deleted successfully',
+    data: deletedUser[0]
+  });
+});
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
