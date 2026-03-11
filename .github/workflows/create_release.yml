@@ -53,6 +53,7 @@ jobs:
             NOTES_START_FLAG="--notes-start-tag $PREVIOUS_TAG"
           fi
 
+
           url=$(gh release create $RELEASE_TAG --target main --generate-notes $NOTES_START_FLAG)
           echo "Successfully released **$RELEASE_TAG**! View it [here]($url)." >> $GITHUB_STEP_SUMMARY
 
