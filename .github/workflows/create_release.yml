@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: read
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -19,6 +20,7 @@ jobs:
 
       - name: Get bump version
         id: bump_label
+        if: ${{ github.event_name == 'pull_request' }}
         uses: SamirMarin/get-labels-action@v0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -26,12 +28,21 @@ jobs:
           label_value_order: "patch,minor,major,ignore"
           default_label_value: patch
 
+      - name: Set default bump for push events
+        id: bump_value
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "bump_version=${{ steps.bump_label.outputs.label_value }}" >> $GITHUB_OUTPUT
+          else
+            echo "bump_version=patch" >> $GITHUB_OUTPUT
+          fi
+
       - name: create tag to release
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          default_bump: ${{ steps.bump_label.outputs.label_value }}
+          default_bump: ${{ steps.bump_value.outputs.bump_version }}
           dry_run: ${{ github.event_name == 'pull_request' }}
           tag_prefix: v
 
