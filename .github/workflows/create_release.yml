@@ -48,12 +48,13 @@ jobs:
           PREVIOUS_TAG: ${{ steps.gen-tag.outputs.previous_version }}
           RELEASE_TAG: ${{ steps.gen-tag.outputs.version_tag }}
         run: |
+          NOTES_START_FLAG=""
           if [[ -n ${PREVIOUS_TAG} ]]; then
-            NOTES_START_FLAG = " --notes-start-tag ${PREVIOUS_TAG}"
+            NOTES_START_FLAG="--notes-start-tag ${PREVIOUS_TAG}"
           fi
 
-          url=${gh release creater $RELEASE_TAG --target main --generate-notes$NOTES_START_FLAG}
-          echo " Successfully release of **$RELEASE_TAG**! view it [here]($url)." >> $GITHUB_STEP_SUMMARY
+          url=$(gh release create $RELEASE_TAG --target main --generate-notes $NOTES_START_FLAG)
+          echo "Successfully released **$RELEASE_TAG**! View it [here]($url)." >> $GITHUB_STEP_SUMMARY
 
       - name: Move major floating tag
         env:
