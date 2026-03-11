@@ -30,8 +30,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Endpoint 2: Get all users
-app.get('/api/users', (req, res) => {
+// Endpoint 2: Get all users (v2)
+app.get('/api/v2/users', (req, res) => {
   res.json({
     success: true,
     data: users,
@@ -39,8 +39,8 @@ app.get('/api/users', (req, res) => {
   });
 });
 
-// Endpoint 3: Create a new user
-app.post('/api/users', (req, res) => {
+// Endpoint 3: Create a new user (v2)
+app.post('/api/v2/users', (req, res) => {
   const { name, email } = req.body;
 
   if (!name || !email) {
@@ -67,8 +67,8 @@ app.post('/api/users', (req, res) => {
   });
 });
 
-// Endpoint 4: Get user by ID
-app.get('/api/users/:id', (req, res) => {
+// Endpoint 4: Get user by ID (v2)
+app.get('/api/v2/users/:id', (req, res) => {
   const user = users.find(u => u.id === parseInt(req.params.id));
 
   if (!user) {
@@ -86,8 +86,8 @@ app.get('/api/users/:id', (req, res) => {
   });
 });
 
-// Endpoint 5: Delete user by ID
-app.delete('/api/users/:id', (req, res) => {
+// Endpoint 5: Delete user by ID (v2)
+app.delete('/api/v2/users/:id', (req, res) => {
   const userIndex = users.findIndex(u => u.id === parseInt(req.params.id));
 
   if (userIndex === -1) {
@@ -131,5 +131,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
-  console.log(`Get users: http://localhost:${PORT}/api/users`);
+  console.log(`Get users: http://localhost:${PORT}/api/v2/users`);
 });
