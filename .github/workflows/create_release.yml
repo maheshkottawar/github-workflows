@@ -2,11 +2,6 @@ name: Create a release
 
 on:
   workflow_dispatch:
-    inputs:
-      release_type:
-        description: "Release type (auto/patch/minor/major)"
-        required: false
-        default: "auto"
 
 permissions:
   contents: write
@@ -26,7 +21,7 @@ jobs:
         id: gen-tag
         uses: paulhatch/semantic-version@v5.4.0
         with:
-          tag-prefix: "v"
+          tag_prefix: "v"
           version_format: ${major}.${minor}.${patch}
 
       - name: Display generated tag
