@@ -11,7 +11,8 @@
     "nodejs",
     "api",
     "express",
-    "v4"
+    "v4",
+    "multiple-endpoints"
   ],
   "author": "",
   "license": "ISC",
