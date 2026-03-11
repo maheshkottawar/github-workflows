@@ -49,7 +49,7 @@ jobs:
           RELEASE_TAG: ${{ steps.gen-tag.outputs.version_tag }}
         run: |
           NOTES_START_FLAG=""
-          if [[ -n ${PREVIOUS_TAG} ]]; then
+          if [[ -n "$PREVIOUS_TAG" ]]; then
             NOTES_START_FLAG="--notes-start-tag ${PREVIOUS_TAG}"
           fi
 
