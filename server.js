@@ -30,6 +30,7 @@ app.get('/health', (req, res) => {
   });
 });
 
+
 // Endpoint 2: Get all users (v4)
 app.get('/api/v4/users', (req, res) => {
   res.json({
@@ -38,6 +39,7 @@ app.get('/api/v4/users', (req, res) => {
     count: users.length
   });
 });
+
 
 // Endpoint 3: Create a new user (v4)
 app.post('/api/v4/users', (req, res) => {
