@@ -52,6 +52,7 @@ jobs:
           PREVIOUS_TAG: "v${{ steps.gen-tag.outputs.previous_version }}"
           RELEASE_TAG: ${{ steps.gen-tag.outputs.version_tag }}
         run: |
+
           NOTES_FLAG="--generate-notes"
           if [[ -n "$PREVIOUS_TAG" ]]; then
             NOTES_FLAG="--generate-notes --notes-start-tag $PREVIOUS_TAG"
