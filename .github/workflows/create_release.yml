@@ -50,7 +50,7 @@ jobs:
         run: |
           NOTES_START_FLAG=""
           if [[ -n "$PREVIOUS_TAG" ]]; then
-            NOTES_START_FLAG="--notes-start-tag ${PREVIOUS_TAG}"
+            NOTES_START_FLAG="--notes-start-tag $PREVIOUS_TAG"
           fi
 
           url=$(gh release create $RELEASE_TAG --target main --generate-notes $NOTES_START_FLAG)
