@@ -49,37 +49,15 @@ jobs:
       - name: Create GitHub release and release tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PREVIOUS_VERSION: ${{ steps.gen-tag.outputs.previous_version }}
+          PREVIOUS_TAG: ${{ steps.gen-tag.outputs.previous_version }}
           RELEASE_TAG: ${{ steps.gen-tag.outputs.version_tag }}
         run: |
-          echo "Creating release **$RELEASE_TAG**..." >> $GITHUB_STEP_SUMMARY
-
           NOTES_START_FLAG=""
-
-          # Add v prefix to previous version to match tag naming convention
-          if [[ -n "$PREVIOUS_VERSION" ]]; then
-            PREVIOUS_TAG="v${PREVIOUS_VERSION}"
-            echo "Previous version: $PREVIOUS_VERSION"
-            echo "Formatted previous tag: $PREVIOUS_TAG"
-            
-            # Verify tag exists locally or on remote
-            if git rev-parse "$PREVIOUS_TAG" >/dev/null 2>&1; then
-              echo "Previous tag validated: $PREVIOUS_TAG"
-              NOTES_START_FLAG="--notes-start-tag $PREVIOUS_TAG"
-            else
-              echo "Warning: Previous tag '$PREVIOUS_TAG' not found, generating notes without reference"
-            fi
-          else
-            echo "No previous version found, generating notes from repository history"
+          if [[ -n "$PREVIOUS_TAG" ]]; then
+            NOTES_START_FLAG="--notes-start-tag v$PREVIOUS_TAG"
           fi
 
-          # Create release with or without previous tag reference
-          if [[ -n "$NOTES_START_FLAG" ]]; then
-            url=$(gh release create $RELEASE_TAG --target main --generate-notes $NOTES_START_FLAG)
-          else
-            url=$(gh release create $RELEASE_TAG --target main --generate-notes)
-          fi
-
+          url=$(gh release create $RELEASE_TAG --target main --generate-notes $NOTES_START_FLAG)
           echo "Successfully released **$RELEASE_TAG**! View it [here]($url)." >> $GITHUB_STEP_SUMMARY
 
       - name: Move major floating tag
