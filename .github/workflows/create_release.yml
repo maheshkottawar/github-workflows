@@ -49,16 +49,19 @@ jobs:
       - name: Create GitHub release and release tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PREVIOUS_TAG: ${{ steps.gen-tag.outputs.previous_version }}
+          PREVIOUS_VERSION: ${{ steps.gen-tag.outputs.previous_version }}
           RELEASE_TAG: ${{ steps.gen-tag.outputs.version_tag }}
         run: |
           echo "Creating release **$RELEASE_TAG**..." >> $GITHUB_STEP_SUMMARY
 
           NOTES_START_FLAG=""
 
-          # Check if PREVIOUS_TAG is not empty and is a valid tag
-          if [[ -n "$PREVIOUS_TAG" ]]; then
-            echo "Previous tag value: $PREVIOUS_TAG"
+          # Add v prefix to previous version to match tag naming convention
+          if [[ -n "$PREVIOUS_VERSION" ]]; then
+            PREVIOUS_TAG="v${PREVIOUS_VERSION}"
+            echo "Previous version: $PREVIOUS_VERSION"
+            echo "Formatted previous tag: $PREVIOUS_TAG"
+            
             # Verify tag exists locally or on remote
             if git rev-parse "$PREVIOUS_TAG" >/dev/null 2>&1; then
               echo "Previous tag validated: $PREVIOUS_TAG"
@@ -67,7 +70,7 @@ jobs:
               echo "Warning: Previous tag '$PREVIOUS_TAG' not found, generating notes without reference"
             fi
           else
-            echo "No previous tag found, generating notes from repository history"
+            echo "No previous version found, generating notes from repository history"
           fi
 
           # Create release with or without previous tag reference
